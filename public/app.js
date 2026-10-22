@@ -70,6 +70,34 @@ function adCard(ad) {
   </a>`;
 }
 
+function adRow(ad) {
+  return `<a class="ad-row" href="/ad/${ad.id}" data-link>
+    <div class="ad-row-media">
+      ${ad.status === 'sold' ? '<span class="badge sold">Sold</span>' : ad.featured ? '<span class="badge">Top</span>' : ''}
+      <img class="thumb" src="${esc(cover(ad))}" alt="" loading="lazy">
+      ${ad.images?.length > 1 ? `<span class="photo-count">📷 ${ad.images.length}</span>` : ''}
+    </div>
+    <div class="ad-row-body">
+      <div class="ad-row-top">
+        <div class="title">${esc(ad.title)}</div>
+        <div class="price">${fmtPrice(ad.price)}</div>
+      </div>
+      <div class="snippet">${esc(ad.description)}</div>
+      <div class="meta"><span>📍 ${esc(ad.city)}</span><span>${esc(ad.category_name)}</span><span>${timeAgo(ad.created_at)}</span></div>
+    </div>
+    <button class="fav ${ad.favorite ? 'on' : ''}" data-fav="${ad.id}" aria-label="Save to favourites">${ad.favorite ? '♥' : '♡'}</button>
+  </a>`;
+}
+
+const adList = (ads) => (ads.length ? `<div class="ad-list">${ads.map(adRow).join('')}</div>` : '<div class="empty">No ads found. Try different filters.</div>');
+
+function getView() {
+  try { return localStorage.getItem('view') === 'grid' ? 'grid' : 'list'; } catch { return 'list'; }
+}
+function setView(v) {
+  try { localStorage.setItem('view', v); } catch { /* storage unavailable */ }
+}
+
 const adGrid = (ads) => (ads.length ? `<div class="ad-grid">${ads.map(adCard).join('')}</div>` : '<div class="empty">No ads found. Try different filters.</div>');
 
 function renderNav() {
@@ -90,22 +118,29 @@ async function homePage() {
   const [featured, latest] = await Promise.all([api('/api/ads?featured=1'), api('/api/ads?sort=newest')]);
   const newest = latest.ads.slice(0, 12);
   $app.innerHTML = `
-    <section class="hero">
-      <div>
-        <span class="eyebrow">Cyprus marketplace</span>
-        <h1>Buy and sell anything,<br>directly.</h1>
-        <p>${latest.total} active ads from people near you, from Paphos to Famagusta.</p>
+    <div class="home">
+      <aside class="cat-side" aria-label="Categories">
+        <div class="cat-side-title">All categories</div>
+        ${state.categories.map((c) => `
+          <a class="cat-side-item" href="/c/${c.slug}" data-link>
+            <span class="icon">${c.icon}</span><span class="name">${esc(c.name)}</span><span class="count">${c.ad_count}</span>
+          </a>`).join('')}
+      </aside>
+      <div class="home-main">
+        <section class="hero">
+          <div>
+            <span class="eyebrow">Cyprus marketplace</span>
+            <h1>Buy and sell anything,<br>directly.</h1>
+            <p>${latest.total} active ads from people near you, from Paphos to Famagusta.</p>
+          </div>
+          <a href="/post" class="btn btn-accent btn-lg" data-link>Post a free ad</a>
+        </section>
+        <section class="weather" id="weather" hidden></section>
+        ${featured.ads.length ? `<div class="section-head"><h2>Top ads</h2><a href="/search?featured=1" data-link>See all</a></div>${adGrid(featured.ads.slice(0, 8))}` : ''}
+        <div class="section-head"><h2>Latest ads</h2><a href="/search?sort=newest" data-link>See all</a></div>
+        ${adGrid(newest)}
       </div>
-      <a href="/post" class="btn btn-accent btn-lg" data-link>Post a free ad</a>
-    </section>
-    <section class="weather" id="weather" hidden></section>
-    <h2>Categories</h2>
-    <div class="cat-grid">${state.categories.map((c) => `
-      <a class="cat-tile" href="/c/${c.slug}" data-link>
-        <div class="icon">${c.icon}</div><div class="name">${esc(c.name)}</div><div class="count">${c.ad_count} ads</div>
-      </a>`).join('')}</div>
-    ${featured.ads.length ? `<h2>Top ads</h2>${adGrid(featured.ads.slice(0, 8))}` : ''}
-    <h2>Latest ads</h2>${adGrid(newest)}`;
+    </div>`;
   renderWeather();
 }
 
@@ -193,6 +228,7 @@ async function listingPage(categorySlug) {
     <div class="breadcrumbs"><a href="/" data-link>Home</a>${top ? ` › <a href="/c/${top.slug}" data-link>${esc(top.name)}</a>` : ''}${sub ? ` › ${esc(sub.name)}` : ''}</div>
     <h1>${esc(title)} <span class="muted" style="font-size:1rem;font-weight:400">(${data.total})</span></h1>
     ${top ? `<div class="subcats">${top.children.map((c) => `<a class="chip ${c.slug === categorySlug ? 'active' : ''}" href="/c/${c.slug}${qs({ page: '' })}" data-link>${esc(c.name)} · ${c.ad_count}</a>`).join('')}</div>` : ''}
+    <button type="button" class="btn btn-ghost filters-toggle" id="filters-toggle" aria-expanded="false" aria-controls="filters">⚙ Filters${['q', 'city', 'min', 'max'].some((k) => params.get(k)) ? ' •' : ''}</button>
     <div class="listing">
       <form class="filters" id="filters">
         <strong>Filters</strong>
@@ -207,16 +243,26 @@ async function listingPage(categorySlug) {
         <button class="btn" style="width:100%;margin-top:14px">Apply</button>
       </form>
       <div>
-        <div class="toolbar"><span class="muted">Page ${data.page} of ${data.pages}</span>
+        <div class="toolbar"><span class="muted">${data.total} ads · page ${data.page} of ${data.pages}</span>
+          <div class="toolbar-right">
+          <div class="view-toggle" role="group" aria-label="Layout">
+            <button type="button" data-view="list" class="${getView() === 'list' ? 'active' : ''}" aria-label="List view">☰</button>
+            <button type="button" data-view="grid" class="${getView() === 'grid' ? 'active' : ''}" aria-label="Grid view">▦</button>
+          </div>
           <select id="sort" aria-label="Sort">
             ${[['', 'Recommended'], ['newest', 'Newest'], ['price_asc', 'Price: low to high'], ['price_desc', 'Price: high to low'], ['popular', 'Most viewed']]
               .map(([v, l]) => `<option value="${v}" ${(params.get('sort') ?? '') === v ? 'selected' : ''}>${l}</option>`).join('')}
-          </select></div>
-        ${adGrid(data.ads)}
+          </select></div></div>
+        <div id="results">${getView() === 'grid' ? adGrid(data.ads) : adList(data.ads)}</div>
         ${data.pages > 1 ? `<div class="pager">${Array.from({ length: data.pages }, (_, i) => i + 1)
           .map((n) => `<a class="chip ${n === data.page ? 'active' : ''}" href="${location.pathname}${qs({ page: n === 1 ? '' : n })}" data-link>${n}</a>`).join('')}</div>` : ''}
       </div>
     </div>`;
+
+  document.getElementById('filters-toggle').addEventListener('click', (e) => {
+    const open = document.getElementById('filters').classList.toggle('open');
+    e.currentTarget.setAttribute('aria-expanded', open);
+  });
 
   const catSel = document.getElementById('f-cat');
   if (catSel) catSel.value = params.get('category') ?? '';
@@ -233,6 +279,11 @@ async function listingPage(categorySlug) {
     navigate(base + (p.toString() ? '?' + p : ''));
   });
   document.getElementById('sort').addEventListener('change', (e) => navigate(location.pathname + qs({ sort: e.target.value, page: '' })));
+  document.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => {
+    setView(b.dataset.view);
+    document.querySelectorAll('[data-view]').forEach((x) => x.classList.toggle('active', x === b));
+    document.getElementById('results').innerHTML = b.dataset.view === 'grid' ? adGrid(data.ads) : adList(data.ads);
+  }));
 }
 
 async function adPage(id) {
@@ -243,24 +294,29 @@ async function adPage(id) {
   $app.innerHTML = `
     <div class="breadcrumbs"><a href="/" data-link>Home</a> › <a href="/c/${ad.parent_slug}" data-link>${esc(ad.parent_name)}</a> ›
       <a href="/c/${ad.category_slug}" data-link>${esc(ad.category_name)}</a></div>
+    <div class="ad-head">
+      <div>
+        <h1>${esc(ad.title)}</h1>
+        <div class="ad-head-meta"><span>📍 ${esc(ad.city)}</span><span>${timeAgo(ad.created_at)}</span><span>👁 ${ad.views} views</span><span>ID #${ad.id}</span></div>
+      </div>
+      <div class="ad-head-price">${fmtPrice(ad.price)}</div>
+    </div>
     <div class="detail">
       <div class="stack">
-        <div class="panel">
+        <div class="panel gallery">
           <img class="gallery-main" id="main-img" src="${esc(images[0])}" alt="${esc(ad.title)}">
           ${images.length > 1 ? `<div class="gallery-thumbs">${images.map((src, i) => `<img src="${esc(src)}" data-src="${esc(src)}" class="${i ? '' : 'active'}" alt="Photo ${i + 1}">`).join('')}</div>` : ''}
         </div>
         <div class="panel">
-          <h1 style="margin-top:0">${esc(ad.title)}</h1>
-          <div class="price">${fmtPrice(ad.price)}</div>
-          <dl class="facts">
-            <dt>Location</dt><dd>${esc(ad.city)}</dd>
-            <dt>Category</dt><dd>${esc(ad.category_name)}</dd>
-            <dt>Posted</dt><dd>${timeAgo(ad.created_at)}</dd>
-            <dt>Views</dt><dd>${ad.views}</dd>
-            <dt>Ad ID</dt><dd>#${ad.id}</dd>
-            ${ad.status !== 'active' ? `<dt>Status</dt><dd>${esc(ad.status)}</dd>` : ''}
-          </dl>
-          <h2>Description</h2>
+          <h2 class="panel-title">Details</h2>
+          <table class="specs">
+            <tr><th>Category</th><td>${esc(ad.parent_name)} › ${esc(ad.category_name)}</td></tr>
+            <tr><th>Location</th><td>${esc(ad.city)}</td></tr>
+            <tr><th>Price</th><td>${fmtPrice(ad.price)}</td></tr>
+            <tr><th>Posted</th><td>${new Date(ad.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</td></tr>
+            ${ad.status !== 'active' ? `<tr><th>Status</th><td>${esc(ad.status)}</td></tr>` : ''}
+          </table>
+          <h2 class="panel-title">Description</h2>
           <div class="desc">${esc(ad.description)}</div>
         </div>
       </div>
@@ -282,7 +338,16 @@ async function adPage(id) {
         </form>`}
         <div class="panel muted" style="font-size:.85rem">Safety tip: never pay in advance. Inspect the item and meet in a public place.</div>
       </aside>
-    </div>`;
+    </div>
+    <section id="similar"></section>`;
+
+  // Same subcategory first, then the rest of the parent category.
+  api(`/api/ads?category=${encodeURIComponent(ad.parent_slug)}`).then((r) => {
+    const others = r.ads.filter((a) => a.id !== ad.id);
+    const similar = [...others.filter((a) => a.category_slug === ad.category_slug), ...others.filter((a) => a.category_slug !== ad.category_slug)].slice(0, 4);
+    const box = document.getElementById('similar');
+    if (box && similar.length) box.innerHTML = `<div class="section-head"><h2>Similar ads</h2><a href="/c/${ad.parent_slug}" data-link>See all in ${esc(ad.parent_name)}</a></div>${adGrid(similar)}`;
+  }).catch(() => {});
 
   document.querySelectorAll('.gallery-thumbs img').forEach((img) => img.addEventListener('click', () => {
     document.getElementById('main-img').src = img.dataset.src;
@@ -497,6 +562,8 @@ async function render() {
   const params = new URLSearchParams(location.search);
   form.q.value = params.get('q') ?? '';
   form.city.value = params.get('city') ?? '';
+  const catMatch = location.pathname.match(/^\/c\/([\w-]+)/);
+  form.category.value = catMatch ? catMatch[1].split('--')[0] : '';
   for (const [re, page] of routes) {
     const m = location.pathname.match(re);
     if (m) {
@@ -549,14 +616,17 @@ document.getElementById('search-form').addEventListener('submit', (e) => {
   const p = new URLSearchParams();
   if (e.target.q.value.trim()) p.set('q', e.target.q.value.trim());
   if (e.target.city.value) p.set('city', e.target.city.value);
-  navigate('/search' + (p.toString() ? '?' + p : ''));
+  const cat = e.target.category.value;
+  navigate((cat ? `/c/${cat}` : '/search') + (p.toString() ? '?' + p : ''));
 });
 
 window.addEventListener('popstate', render);
 
 (async function init() {
   [state.user, state.categories, state.cities] = await Promise.all([api('/api/me'), api('/api/categories'), api('/api/cities')]);
-  document.querySelector('#search-form select').insertAdjacentHTML('beforeend', state.cities.map((c) => `<option>${c}</option>`).join(''));
+  const form = document.getElementById('search-form');
+  form.city.insertAdjacentHTML('beforeend', state.cities.map((c) => `<option>${c}</option>`).join(''));
+  form.category.insertAdjacentHTML('beforeend', state.categories.map((c) => `<option value="${c.slug}">${esc(c.name)}</option>`).join(''));
   renderNav();
   render();
 })();
