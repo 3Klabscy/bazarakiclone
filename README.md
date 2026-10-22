@@ -64,6 +64,17 @@ Feeds are imported every day at 03:17 UTC. To run one straight away, open Netlif
 - **CSV** with a header row: `id, title, description, price, listing (sale/rent), type, town, bedrooms,
   bathrooms, area_m2, url, images` (several image URLs separated by `|`). See `test/fixtures/sample.csv`.
 
+**Uploading a file instead of a feed URL** (for partners who send a CSV or XML file):
+
+```bash
+curl -X POST -H "x-import-secret: $IMPORT_SECRET" --data-binary @listings.csv \
+  "https://amesi-agora.netlify.app/api/admin/import/Partner%20Name"
+```
+
+It follows the same rules as the daily import, and replies with how many listings were imported, updated, taken
+down and skipped (with reasons). Uploading a newer file refreshes that partner's listings. The endpoint is
+disabled unless `IMPORT_SECRET` is set. Files must be under about 6 MB (Netlify's request limit).
+
 **Trying a file locally:** `npm run import-feed -- --name "Example Realty" --file test/fixtures/sample-kyero.xml`,
 then `npm start`.
 

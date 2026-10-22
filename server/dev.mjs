@@ -38,13 +38,14 @@ export function localPhotoStore(dir) {
   };
 }
 
-export async function startServer({ port = 3000, dataDir = path.join(root, 'data') } = {}) {
+export async function startServer({ port = 3000, dataDir = path.join(root, 'data'), importSecret = process.env.IMPORT_SECRET } = {}) {
   const db = new NetlifyDB({ directory: dataDir && path.join(dataDir, 'db'), logger: () => {} });
   await db.start();
   await db.applyMigrations(path.join(root, 'netlify', 'database', 'migrations'));
   const handle = createApi({
     query: async (text, params) => (await db.query(text, params)).rows,
     photos: localPhotoStore(dataDir && path.join(dataDir, 'photos')),
+    importSecret,
   });
 
   const server = http.createServer(async (nodeReq, res) => {
