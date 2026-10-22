@@ -14,9 +14,9 @@ The name, design and demo content are all original.
 - **Messages**: message a seller from an ad and reply from your inbox
 - Responsive layout for desktop and mobile
 
-## Running it
+## Running it locally
 
-Requires Node.js 22.13 or later (it uses the built-in `node:sqlite`).
+Requires Node.js 22 or later.
 
 ```bash
 npm install
@@ -24,15 +24,27 @@ npm start          # http://localhost:3000  (set PORT to change)
 npm test           # API tests
 ```
 
-On first start the app creates `data/app.db` and seeds demo ads.
-Demo login: `demo@example.com` / `demo1234`. Uploaded photos are stored in `uploads/`.
+Locally the app uses an embedded Postgres (PGlite) stored in `data/`, created and seeded on first start.
+Demo login: `demo@example.com` / `demo1234`.
+
+## Deploying (Netlify)
+
+- `public/` is served as static files; `public/_redirects` sends client-side routes to `index.html`.
+- `netlify/functions/api.mjs` serves `/api/*` and `/uploads/*`.
+- Data lives in **Netlify Database** (Postgres). The schema and seed data are in
+  `netlify/database/migrations/`, and Netlify applies them on each deploy. Never edit a migration that has
+  already been applied; add a new one instead.
+- Photos are stored in **Netlify Blobs** (store `ad-photos`). The browser resizes them before upload to stay under
+  the Functions request-size limit.
 
 ## Structure
 
 ```
-src/server.js   Express app and REST API (/api/...)
-src/db.js       SQLite schema, categories, cities, demo seed data
-src/auth.js     password hashing and session helpers
-public/         single-page frontend (vanilla JS, history routing)
-test/           node:test API tests
+lib/api.mjs                     REST API (web Request -> Response), shared by Netlify and local dev
+lib/auth.mjs                    password hashing and cookie helpers
+netlify/functions/api.mjs       Netlify Function wiring: Netlify Database + Blobs
+netlify/database/migrations/    Postgres schema, categories and demo data
+server/dev.mjs                  local dev server (embedded Postgres, photos on disk)
+public/                         single-page frontend (vanilla JS, history routing)
+test/                           node:test API tests
 ```

@@ -2,16 +2,19 @@
   "name": "agora-classifieds",
   "version": "1.0.0",
   "description": "Cyprus classifieds marketplace — browse, search and post ads",
-  "main": "src/server.js",
-  "type": "commonjs",
-  "engines": { "node": ">=22.13" },
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
   "scripts": {
-    "start": "node --no-warnings src/server.js",
-    "dev": "node --no-warnings --watch src/server.js",
-    "test": "node --no-warnings --test test/*.test.js"
+    "start": "node server/dev.mjs",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
-    "express": "^5.1.0",
-    "multer": "^2.0.2"
+    "@netlify/blobs": "^11.1.6",
+    "@netlify/database": "^2.0.1",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@netlify/database-dev": "^1.0.1"
   }
 }

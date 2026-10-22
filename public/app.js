@@ -20,8 +20,8 @@ async function api(url, opts = {}) {
 
 const fmtPrice = (p) => (p === null || p === undefined ? 'Contact for price' : '€' + Number(p).toLocaleString('en-GB', { maximumFractionDigits: 2 }));
 
-function timeAgo(sqlDate) {
-  const s = (Date.now() - new Date(sqlDate.replace(' ', 'T') + 'Z').getTime()) / 1000;
+function timeAgo(date) {
+  const s = (Date.now() - new Date(date).getTime()) / 1000;
   if (s < 60) return 'just now';
   if (s < 3600) return `${Math.floor(s / 60)} min ago`;
   if (s < 86400) return `${Math.floor(s / 3600)} h ago`;
@@ -197,7 +197,7 @@ async function adPage(id) {
       <aside class="stack">
         <div class="panel seller">
           <div class="seller-head"><div class="avatar">${esc(ad.seller.name[0]?.toUpperCase())}</div>
-            <div><strong>${esc(ad.seller.name)}</strong><div class="muted" style="font-size:.85rem">On Agora since ${new Date(ad.seller.created_at.replace(' ', 'T') + 'Z').getFullYear()} · ${ad.seller.ad_count} ads</div></div></div>
+            <div><strong>${esc(ad.seller.name)}</strong><div class="muted" style="font-size:.85rem">On Agora since ${new Date(ad.seller.created_at).getFullYear()} · ${ad.seller.ad_count} ads</div></div></div>
           <div class="stack">
             ${ad.seller.phone ? `<button class="btn" id="show-phone">📞 Show phone number</button>` : ''}
             <button class="btn btn-ghost" data-fav="${ad.id}">${ad.favorite ? '♥ Saved' : '♡ Save to favourites'}</button>
@@ -264,6 +264,17 @@ function categoryOptions(selected) {
   </optgroup>`).join('');
 }
 
+// Resize photos in the browser so uploads stay small (the server accepts at most 2 MB per photo).
+async function shrinkImage(file, maxSide = 1600) {
+  const img = await createImageBitmap(file);
+  const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(img.width * scale);
+  canvas.height = Math.round(img.height * scale);
+  canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+  return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.82));
+}
+
 function postPage() {
   if (!state.user) return navigate('/login?next=/post');
   $app.innerHTML = `
@@ -279,7 +290,7 @@ function postPage() {
       <div class="field"><label for="p-city">City</label><select id="p-city" name="city" required><option value="">Choose…</option>
         ${state.cities.map((c) => `<option>${c}</option>`).join('')}</select></div>
       <div class="field"><label for="p-img">Photos</label><input id="p-img" name="images" type="file" accept="image/*" multiple>
-        <div class="hint">Up to 8 photos, 5 MB each. The first photo is the cover.</div><div class="previews" id="previews"></div></div>
+        <div class="hint">Up to 8 photos. The first photo is the cover.</div><div class="previews" id="previews"></div></div>
       <button class="btn btn-accent" style="width:100%">Publish ad</button>
     </form>`;
   document.getElementById('p-img').addEventListener('change', (e) => {
@@ -290,7 +301,11 @@ function postPage() {
     const btn = e.target.querySelector('button');
     btn.disabled = true;
     try {
-      const { id } = await api('/api/ads', { method: 'POST', body: new FormData(e.target) });
+      const fd = new FormData(e.target);
+      const photos = fd.getAll('images').filter((f) => f.size > 0).slice(0, 8);
+      fd.delete('images');
+      for (const f of photos) fd.append('images', await shrinkImage(f), f.name.replace(/\.\w+$/, '') + '.jpg');
+      const { id } = await api('/api/ads', { method: 'POST', body: fd });
       toast('Your ad is live!');
       navigate(`/ad/${id}`);
     } catch (err) {

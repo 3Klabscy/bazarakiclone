@@ -1,19 +1,14 @@
-const test = require('node:test');
-const assert = require('node:assert');
-const fs = require('node:fs');
-const os = require('node:os');
-const path = require('node:path');
-const { createApp } = require('../src/server');
+import test from 'node:test';
+import assert from 'node:assert';
+import { startServer } from '../server/dev.mjs';
 
-let server, base;
+let app, base;
 
 test.before(async () => {
-  const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agora-up-'));
-  server = createApp({ dbFile: ':memory:', uploadDir }).listen(0);
-  await new Promise((r) => server.once('listening', r));
-  base = `http://127.0.0.1:${server.address().port}`;
+  app = await startServer({ port: 0, dataDir: null });
+  base = app.url;
 });
-test.after(() => server.close());
+test.after(() => app.close());
 
 // Minimal cookie-keeping client.
 function client() {
@@ -75,6 +70,9 @@ test('register, post, edit, favourite, message and delete an ad', async () => {
   r = await seller(`/api/ads/${id}`);
   assert.strictEqual(r.data.title, 'Vintage desk lamp');
   assert.strictEqual(r.data.images.length, 1);
+  const photo = await fetch(base + r.data.images[0]);
+  assert.strictEqual(photo.headers.get('content-type'), 'image/png');
+  assert.strictEqual(await photo.text(), 'fakepng');
   assert.strictEqual(r.data.seller.phone, '+357 99 111111');
 
   r = await seller(`/api/ads/${id}`, { method: 'PATCH', body: { price: '30' } });
