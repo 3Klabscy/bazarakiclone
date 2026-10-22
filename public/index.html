@@ -7,6 +7,10 @@
   <meta name="description" content="Buy and sell property, cars, electronics and more across Cyprus.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -18,10 +22,11 @@
   <path d="M12 21 H52 L49 56 a4 4 0 0 1 -4 3.6 H19 a4 4 0 0 1 -4 -3.6 Z" fill="#1d4e89"/>
   <path fill="#fff" fill-rule="evenodd" d="M22 53 L29 28.5 H35 L42 53 H36.2 L34.9 48 H29.1 L27.8 53 Z M30.2 43.5 H33.8 L32 36.4 Z"/>
         </svg></span>
-        <span class="logo-word">AMESI AGORA</span>
+        <span class="logo-word"><span class="w1">AMESI</span> <span class="w2">AGORA</span></span>
       </a>
       <form class="search" id="search-form" role="search">
-        <input type="search" name="q" placeholder="Search for anything…" aria-label="Search ads">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="search" name="q" placeholder="Search cars, flats, phones…" aria-label="Search ads">
         <select name="city" aria-label="City"><option value="">All Cyprus</option></select>
         <button type="submit">Search</button>
       </form>
@@ -30,9 +35,19 @@
   </header>
   <main class="wrap" id="app" aria-live="polite"></main>
   <footer class="footer">
-    <div class="wrap">
-      <p><strong>Amesi Agora</strong> · Free classifieds across Nicosia, Limassol, Larnaca, Paphos and Famagusta.</p>
-      <p class="muted">Never send money in advance to sellers you have not met. Meet in a public place.</p>
+    <div class="wrap footer-grid">
+      <div>
+        <div class="footer-brand"><span class="w1">AMESI</span> <span class="w2">AGORA</span></div>
+        <p>Free classifieds across Cyprus. Buy and sell directly with people near you.</p>
+      </div>
+      <div>
+        <div class="footer-title">Cities</div>
+        <p>Nicosia · Limassol · Larnaca · Paphos · Famagusta</p>
+      </div>
+      <div>
+        <div class="footer-title">Stay safe</div>
+        <p>Never send money in advance to sellers you have not met. Meet in a public place.</p>
+      </div>
     </div>
   </footer>
   <div id="toast" class="toast" role="status"></div>

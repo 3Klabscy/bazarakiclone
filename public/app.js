@@ -91,8 +91,12 @@ async function homePage() {
   const newest = latest.ads.slice(0, 12);
   $app.innerHTML = `
     <section class="hero">
-      <div><h1>Buy and sell anything in Cyprus</h1><p>${latest.total} active ads from people near you.</p></div>
-      <a href="/post" class="btn btn-accent" data-link>Post a free ad</a>
+      <div>
+        <span class="eyebrow">Cyprus marketplace</span>
+        <h1>Buy and sell anything,<br>directly.</h1>
+        <p>${latest.total} active ads from people near you, from Paphos to Famagusta.</p>
+      </div>
+      <a href="/post" class="btn btn-accent btn-lg" data-link>Post a free ad</a>
     </section>
     <section class="weather" id="weather" hidden></section>
     <h2>Categories</h2>
