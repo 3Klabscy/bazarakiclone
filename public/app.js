@@ -94,6 +94,7 @@ async function homePage() {
       <div><h1>Buy and sell anything in Cyprus</h1><p>${latest.total} active ads from people near you.</p></div>
       <a href="/post" class="btn btn-accent" data-link>Post a free ad</a>
     </section>
+    <section class="weather" id="weather" hidden></section>
     <h2>Categories</h2>
     <div class="cat-grid">${state.categories.map((c) => `
       <a class="cat-tile" href="/c/${c.slug}" data-link>
@@ -101,6 +102,71 @@ async function homePage() {
       </a>`).join('')}</div>
     ${featured.ads.length ? `<h2>Top ads</h2>${adGrid(featured.ads.slice(0, 8))}` : ''}
     <h2>Latest ads</h2>${adGrid(newest)}`;
+  renderWeather();
+}
+
+// ---------- Weather (Open-Meteo, no API key) ----------
+const WEATHER_PLACES = [
+  ['Kiti', 34.8486, 33.5714],
+  ['Nicosia', 35.1856, 33.3823],
+  ['Limassol', 34.6786, 33.0413],
+  ['Larnaca', 34.9229, 33.6233],
+  ['Paphos', 34.7720, 32.4297],
+  ['Famagusta', 35.1174, 33.9419],
+];
+
+function weatherLabel(code) {
+  if (code === 0) return ['☀️', 'Clear sky'];
+  if (code <= 2) return ['🌤️', 'Partly cloudy'];
+  if (code === 3) return ['☁️', 'Overcast'];
+  if (code <= 48) return ['🌫️', 'Fog'];
+  if (code <= 57) return ['🌦️', 'Drizzle'];
+  if (code <= 67) return ['🌧️', 'Rain'];
+  if (code <= 77) return ['🌨️', 'Snow'];
+  if (code <= 82) return ['🌦️', 'Showers'];
+  return ['⛈️', 'Thunderstorm'];
+}
+
+async function fetchWeather() {
+  // Cache for 15 minutes so navigating back to the home page doesn't refetch.
+  if (fetchWeather.cache && Date.now() - fetchWeather.cache.at < 15 * 60 * 1000) return fetchWeather.cache.data;
+  const url = 'https://api.open-meteo.com/v1/forecast?' + new URLSearchParams({
+    latitude: WEATHER_PLACES.map((p) => p[1]).join(','),
+    longitude: WEATHER_PLACES.map((p) => p[2]).join(','),
+    current: 'temperature_2m,weather_code,wind_speed_10m',
+    daily: 'temperature_2m_max,temperature_2m_min',
+    forecast_days: '1',
+    timezone: 'Asia/Nicosia',
+  });
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Weather unavailable');
+  const data = await res.json();
+  fetchWeather.cache = { at: Date.now(), data };
+  return data;
+}
+
+async function renderWeather() {
+  const box = document.getElementById('weather');
+  try {
+    const data = await fetchWeather();
+    if (!document.body.contains(box)) return; // user navigated away
+    box.innerHTML = `
+      <div class="weather-head"><h2>Weather today</h2><span class="source">Data: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a></span></div>
+      <div class="weather-row">${data.map((w, i) => {
+        const [icon, desc] = weatherLabel(w.current.weather_code);
+        return `<div class="wx ${i === 0 ? 'featured' : ''}">
+          <div class="place">${esc(WEATHER_PLACES[i][0])}</div>
+          <div class="icon" aria-hidden="true">${icon}</div>
+          <div class="temp">${Math.round(w.current.temperature_2m)}°C</div>
+          <div class="desc">${desc}</div>
+          <div class="range">↑${Math.round(w.daily.temperature_2m_max[0])}° ↓${Math.round(w.daily.temperature_2m_min[0])}°</div>
+          <div class="range">💨 ${Math.round(w.current.wind_speed_10m)} km/h</div>
+        </div>`;
+      }).join('')}</div>`;
+    box.hidden = false;
+  } catch {
+    // Weather is a nice-to-have; leave it hidden if the service is unreachable.
+  }
 }
 
 async function listingPage(categorySlug) {
