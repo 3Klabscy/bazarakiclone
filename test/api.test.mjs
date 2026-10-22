@@ -105,7 +105,11 @@ test('register, post, edit, favourite, message and delete an ad', async () => {
 test('validation and login errors', async () => {
   const req = client();
   assert.strictEqual((await req('/api/login', { method: 'POST', body: { email: 'demo@example.com', password: 'wrong' } })).status, 401);
-  assert.strictEqual((await req('/api/login', { method: 'POST', body: { email: 'demo@example.com', password: 'demo1234' } })).status, 200);
+  // The original demo password was published, so a migration replaces it.
+  assert.strictEqual((await req('/api/login', { method: 'POST', body: { email: 'demo@example.com', password: 'demo1234' } })).status, 401);
+  await req('/api/register', { method: 'POST', body: { name: 'Eleni', email: 'eleni@example.com', password: 'secret3' } });
+  await req('/api/logout', { method: 'POST' });
+  assert.strictEqual((await req('/api/login', { method: 'POST', body: { email: 'eleni@example.com', password: 'secret3' } })).status, 200);
   const f = new FormData();
   f.set('title', 'x');
   const r = await req('/api/ads', { method: 'POST', form: f });

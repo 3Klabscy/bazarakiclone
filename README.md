@@ -25,7 +25,7 @@ npm test           # API tests
 ```
 
 Locally the app uses an embedded Postgres (PGlite) stored in `data/`, created and seeded on first start.
-Demo login: `demo@example.com` / `demo1234`.
+The demo ads belong to a "Demo Seller" account (`demo@example.com`) whose password is not published.
 
 ## Deploying (Netlify)
 

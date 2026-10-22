@@ -244,7 +244,6 @@ function authPage(mode) {
       <div class="field"><label for="a-pass">Password</label><input id="a-pass" name="password" type="password" required minlength="6" autocomplete="${reg ? 'new-password' : 'current-password'}"></div>
       <button class="btn" style="width:100%">${reg ? 'Register' : 'Log in'}</button>
       <p class="muted" style="text-align:center">${reg ? 'Already have an account? <a href="/login" data-link>Log in</a>' : 'New here? <a href="/register" data-link>Create an account</a>'}</p>
-      ${reg ? '' : '<p class="muted" style="text-align:center;font-size:.85rem">Demo account: demo@example.com / demo1234</p>'}
     </form>`;
   document.getElementById('auth-form').addEventListener('submit', async (e) => {
     e.preventDefault();
