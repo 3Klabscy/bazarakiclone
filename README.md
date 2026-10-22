@@ -1,4 +1,4 @@
-# Agora — Cyprus classifieds
+# Amesi Agora — Cyprus classifieds
 
 A classifieds marketplace for Cyprus. You can browse by category, search and filter ads across Nicosia, Limassol, Larnaca, Paphos and Famagusta, and post ads with photos.
 The name, design and demo content are all original.

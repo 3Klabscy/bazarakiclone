@@ -79,5 +79,5 @@ export async function startServer({ port = 3000, dataDir = path.join(root, 'data
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const { url } = await startServer({ port: Number(process.env.PORT) || 3000 });
-  console.log(`Agora classifieds running at ${url}`);
+  console.log(`Amesi Agora running at ${url}`);
 }

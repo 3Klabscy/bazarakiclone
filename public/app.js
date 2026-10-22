@@ -235,7 +235,7 @@ async function adPage(id) {
   const ad = await api(`/api/ads/${id}`);
   const images = ad.images.length ? ad.images : [placeholder(ad)];
   const isOwner = state.user?.id === ad.user_id;
-  document.title = `${ad.title} — Agora`;
+  document.title = `${ad.title} — Amesi Agora`;
   $app.innerHTML = `
     <div class="breadcrumbs"><a href="/" data-link>Home</a> › <a href="/c/${ad.parent_slug}" data-link>${esc(ad.parent_name)}</a> ›
       <a href="/c/${ad.category_slug}" data-link>${esc(ad.category_name)}</a></div>
@@ -263,7 +263,7 @@ async function adPage(id) {
       <aside class="stack">
         <div class="panel seller">
           <div class="seller-head"><div class="avatar">${esc(ad.seller.name[0]?.toUpperCase())}</div>
-            <div><strong>${esc(ad.seller.name)}</strong><div class="muted" style="font-size:.85rem">On Agora since ${new Date(ad.seller.created_at).getFullYear()} · ${ad.seller.ad_count} ads</div></div></div>
+            <div><strong>${esc(ad.seller.name)}</strong><div class="muted" style="font-size:.85rem">On Amesi Agora since ${new Date(ad.seller.created_at).getFullYear()} · ${ad.seller.ad_count} ads</div></div></div>
           <div class="stack">
             ${ad.seller.phone ? `<button class="btn" id="show-phone">📞 Show phone number</button>` : ''}
             <button class="btn btn-ghost" data-fav="${ad.id}">${ad.favorite ? '♥ Saved' : '♡ Save to favourites'}</button>
@@ -488,7 +488,7 @@ const routes = [
 ];
 
 async function render() {
-  document.title = 'Agora — Cyprus classifieds';
+  document.title = 'Amesi Agora — Cyprus classifieds';
   const form = document.getElementById('search-form');
   const params = new URLSearchParams(location.search);
   form.q.value = params.get('q') ?? '';
