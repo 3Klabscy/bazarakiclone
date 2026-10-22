@@ -1,0 +1,17 @@
+{
+  "name": "agora-classifieds",
+  "version": "1.0.0",
+  "description": "Cyprus classifieds marketplace — browse, search and post ads",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --no-warnings src/server.js",
+    "dev": "node --no-warnings --watch src/server.js",
+    "test": "node --no-warnings --test test/*.test.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "multer": "^2.0.2"
+  }
+}
