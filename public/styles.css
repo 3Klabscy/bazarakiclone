@@ -45,7 +45,8 @@ h2 { font-size: 1.2rem; letter-spacing: -.01em; margin: 40px 0 14px; font-weight
 .logo { display: flex; align-items: center; gap: 10px; color: var(--text); }
 .logo-badge { width: 38px; height: 38px; flex: none; display: grid; }
 .logo-mark { width: 100%; height: 100%; }
-.logo-word, .footer-brand { font-weight: 900; font-size: 1.2rem; letter-spacing: .02em; white-space: nowrap; }
+.logo-word, .footer-brand { display: inline-flex; flex-direction: column; font-weight: 900; font-size: 1.05rem; line-height: 1; letter-spacing: .04em; white-space: nowrap; }
+.logo-word .w2, .footer-brand .w2 { margin-top: 2px; }
 .w1 { color: var(--brand); }
 .w2 { color: var(--accent); }
 
@@ -326,7 +327,7 @@ textarea { min-height: 150px; resize: vertical; }
 @media (max-width: 520px) {
   .logo { gap: 7px; }
   .logo-badge { width: 32px; height: 32px; }
-  .logo-word { font-size: 1rem; }
+  .logo-word { font-size: .95rem; }
   .nav { gap: 0; }
   .nav a[href="/register"] { display: none; }
   .nav .btn { padding: 8px 14px; font-size: .86rem; margin-left: 4px; }

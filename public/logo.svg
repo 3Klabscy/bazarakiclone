@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 64" role="img" aria-label="Amesi Agora">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 64" role="img" aria-label="Amesi Agora">
   <path d="M23 21 V17 a9 9 0 0 1 18 0 V21" fill="none" stroke="#d9822b" stroke-width="4.5" stroke-linecap="round"/>
   <path d="M12 21 H52 L49 56 a4 4 0 0 1 -4 3.6 H19 a4 4 0 0 1 -4 -3.6 Z" fill="#1d4e89"/>
   <path fill="#fff" fill-rule="evenodd" d="M22 53 L29 28.5 H35 L42 53 H36.2 L34.9 48 H29.1 L27.8 53 Z M30.2 43.5 H33.8 L32 36.4 Z"/>
-  <text x="66" y="47" font-family="'Arial Black', 'Segoe UI Black', system-ui, sans-serif" font-weight="900" font-size="31" letter-spacing="0.5"><tspan fill="#1d4e89">AMESI</tspan><tspan fill="#d9822b"> AGORA</tspan></text>
+  <text font-family="'Arial Black', 'Segoe UI Black', system-ui, sans-serif" font-weight="900" font-size="26" letter-spacing="1"><tspan x="68" y="29" fill="#1d4e89">AMESI</tspan><tspan x="68" y="57" fill="#d9822b">AGORA</tspan></text>
 </svg>
