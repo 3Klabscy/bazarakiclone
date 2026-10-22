@@ -25,7 +25,8 @@ h2 { font-size: 1.25rem; margin: 28px 0 12px; }
 .topbar-inner { display: flex; align-items: center; gap: 16px; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
 .logo { color: #fff; font-weight: 800; font-size: 1.5rem; letter-spacing: -.5px; display: flex; align-items: center; gap: 8px; }
 .logo:hover { text-decoration: none; }
-.logo-mark { background: #fff; color: var(--brand); border-radius: 8px; width: 32px; height: 32px; display: grid; place-items: center; font-size: 1.2rem; }
+.logo-mark { width: 36px; height: 36px; flex: none; }
+.logo-light { font-weight: 500; }
 .search { flex: 1; display: flex; min-width: 260px; background: #fff; border-radius: 8px; overflow: hidden; }
 .search input { flex: 1; border: 0; border-radius: 0; padding: 10px 12px; font-size: 1rem; min-width: 0; width: auto; }
 .search select { flex: 0 0 auto; width: auto; border: 0; border-radius: 0; border-left: 1px solid var(--line); padding: 0 8px; background: #fff; }
