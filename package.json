@@ -4,14 +4,18 @@
   "description": "Cyprus classifieds marketplace — browse, search and post ads",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node server/dev.mjs",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "import-feed": "node scripts/import-feed.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "^11.1.6",
     "@netlify/database": "^2.0.1",
+    "fast-xml-parser": "^5.11.2",
     "pg": "^8.23.1"
   },
   "devDependencies": {

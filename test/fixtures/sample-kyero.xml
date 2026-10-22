@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up sample in Kyero v3 format, for tests and trying the importer locally. -->
+<root>
+  <kyero><feed_version>3</feed_version></kyero>
+  <property>
+    <id>EX-1001</id>
+    <ref>LIM-221</ref>
+    <price>285000</price>
+    <currency>EUR</currency>
+    <price_freq>sale</price_freq>
+    <type>Apartment</type>
+    <town>Germasogeia</town>
+    <province>Limassol</province>
+    <beds>2</beds>
+    <baths>2</baths>
+    <surface_area><built>96</built></surface_area>
+    <url><en>https://example.com/listings/EX-1001</en></url>
+    <desc><en>Sample listing: two-bedroom apartment with a large veranda, covered parking and a communal pool.</en></desc>
+    <images>
+      <image id="1"><url>https://example.com/photos/ex-1001-1.jpg</url></image>
+      <image id="2"><url>https://example.com/photos/ex-1001-2.jpg</url></image>
+    </images>
+  </property>
+  <property>
+    <id>EX-1002</id>
+    <price>1400</price>
+    <price_freq>month</price_freq>
+    <type>Villa</type>
+    <town>Peyia</town>
+    <province>Paphos</province>
+    <beds>3</beds>
+    <surface_area><built>180</built><plot>650</plot></surface_area>
+    <desc><en>Sample listing: three-bedroom villa for long-term rent, private pool and sea views.</en></desc>
+  </property>
+  <property>
+    <id>EX-1003</id>
+    <price>120000</price>
+    <price_freq>sale</price_freq>
+    <type>Plot</type>
+    <town>Xylofagou</town>
+    <province>Larnaca</province>
+    <surface_area><plot>1100</plot></surface_area>
+    <desc><en>Sample listing: residential plot close to the village centre.</en></desc>
+  </property>
+  <property>
+    <id>EX-1004</id>
+    <price>99000</price>
+    <price_freq>sale</price_freq>
+    <type>Apartment</type>
+    <town>Somewhere Abroad</town>
+    <desc><en>Sample listing outside Cyprus; should be skipped.</en></desc>
+  </property>
+</root>

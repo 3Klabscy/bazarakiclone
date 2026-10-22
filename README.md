@@ -37,12 +37,45 @@ The demo ads belong to a "Demo Seller" account (`demo@example.com`) whose passwo
 - Photos are stored in **Netlify Blobs** (store `ad-photos`). The browser resizes them before upload to stay under
   the Functions request-size limit.
 
+## Partner listing feeds
+
+Agencies that have **agreed** to share their listings can be imported automatically. Only add a feed with
+the partner's written permission. Each imported ad credits the partner and links back to the original listing,
+and buyers are sent to the partner to enquire.
+
+**Turning it on (Netlify → Project configuration → Environment variables, scope: Functions):**
+
+- `FEEDS`: a JSON list of feeds, for example
+  `[{"name":"Example Realty","url":"https://partner.example/feed.xml","format":"kyero"}]`
+  (`format` is `kyero` or `csv`; leave it out to detect it automatically)
+- `IMPORT_SECRET`: any long random string (it protects the import function)
+
+Feeds are imported every day at 03:17 UTC. To run one straight away, open Netlify → Logs → Functions →
+`import-feeds` and choose **Run now**.
+
+**How it syncs:**
+- Ads are matched by the partner's own listing ID, so each run updates prices and details in place.
+- Listings that disappear from the feed are taken down.
+- A feed that comes back empty or broken is treated as an error and leaves existing ads untouched.
+- Listings outside the five cities, or of an unrecognised property type, are skipped and counted.
+
+**Formats:**
+- **Kyero XML (v3)**: a common property-feed standard; ask the partner for their "Kyero feed".
+- **CSV** with a header row: `id, title, description, price, listing (sale/rent), type, town, bedrooms,
+  bathrooms, area_m2, url, images` (several image URLs separated by `|`). See `test/fixtures/sample.csv`.
+
+**Trying a file locally:** `npm run import-feed -- --name "Example Realty" --file test/fixtures/sample-kyero.xml`,
+then `npm start`.
+
 ## Structure
 
 ```
 lib/api.mjs                     REST API (web Request -> Response), shared by Netlify and local dev
 lib/auth.mjs                    password hashing and cookie helpers
+lib/feeds.mjs                   partner feed importer (Kyero XML / CSV)
 netlify/functions/api.mjs       Netlify Function wiring: Netlify Database + Blobs
+netlify/functions/import-feeds*  daily feed import (scheduled trigger + background worker)
+scripts/import-feed.mjs         import a feed file into the local database
 netlify/database/migrations/    Postgres schema, categories and demo data
 server/dev.mjs                  local dev server (embedded Postgres, photos on disk)
 public/                         single-page frontend (vanilla JS, history routing)

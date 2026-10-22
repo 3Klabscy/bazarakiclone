@@ -312,12 +312,18 @@ async function adPage(id) {
           <table class="specs">
             <tr><th>Category</th><td>${esc(ad.parent_name)} › ${esc(ad.category_name)}</td></tr>
             <tr><th>Location</th><td>${esc(ad.city)}</td></tr>
-            <tr><th>Price</th><td>${fmtPrice(ad.price)}</td></tr>
+            <tr><th>Price</th><td>${fmtPrice(ad.price)}${ad.attributes?.price_period ? ` per ${esc(ad.attributes.price_period)}` : ''}</td></tr>
+            ${ad.attributes?.bedrooms ? `<tr><th>Bedrooms</th><td>${esc(ad.attributes.bedrooms)}</td></tr>` : ''}
+            ${ad.attributes?.bathrooms ? `<tr><th>Bathrooms</th><td>${esc(ad.attributes.bathrooms)}</td></tr>` : ''}
+            ${ad.attributes?.area_m2 ? `<tr><th>Covered area</th><td>${esc(ad.attributes.area_m2)} m²</td></tr>` : ''}
+            ${ad.attributes?.plot_m2 ? `<tr><th>Plot</th><td>${esc(ad.attributes.plot_m2)} m²</td></tr>` : ''}
+            ${ad.attributes?.reference ? `<tr><th>Agency reference</th><td>${esc(ad.attributes.reference)}</td></tr>` : ''}
             <tr><th>Posted</th><td>${new Date(ad.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</td></tr>
             ${ad.status !== 'active' ? `<tr><th>Status</th><td>${esc(ad.status)}</td></tr>` : ''}
           </table>
           <h2 class="panel-title">Description</h2>
           <div class="desc">${esc(ad.description)}</div>
+          ${ad.source_feed ? `<div class="source-note">Listing provided by <strong>${esc(ad.source_feed)}</strong>${ad.external_url ? ` · <a href="${esc(ad.external_url)}" target="_blank" rel="noopener">View the original listing</a>` : ''}</div>` : ''}
         </div>
       </div>
       <aside class="stack">
@@ -330,7 +336,12 @@ async function adPage(id) {
             <a class="btn btn-ghost" href="/search?user=${ad.user_id}" data-link style="text-align:center">All ads by this seller</a>
           </div>
         </div>
-        ${isOwner ? `<div class="panel"><strong>This is your ad</strong><p><a href="/my" data-link>Manage it in My ads</a></p></div>` : `
+        ${isOwner ? `<div class="panel"><strong>This is your ad</strong><p><a href="/my" data-link>Manage it in My ads</a></p></div>` : ad.source_feed ? `
+        <div class="panel">
+          <strong>Contact the agency</strong>
+          <p class="muted" style="font-size:.9rem;margin:8px 0 12px">This property is listed by ${esc(ad.source_feed)}. Enquire with them directly${ad.attributes?.reference ? `, quoting reference <strong>${esc(ad.attributes.reference)}</strong>` : ''}.</p>
+          ${ad.external_url ? `<a class="btn" style="width:100%" href="${esc(ad.external_url)}" target="_blank" rel="noopener">View on ${esc(ad.source_feed)}'s website</a>` : ''}
+        </div>` : `
         <form class="panel" id="msg-form">
           <strong>Message the seller</strong>
           <textarea name="body" required style="margin-top:8px;min-height:90px">Hi, is this still available?</textarea>
